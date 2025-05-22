@@ -1,0 +1,13 @@
+{
+    "httpd": {
+      "status": "stopped",
+      "start_cmd": "echo Starting httpd",
+      "stop_cmd": "echo Stopping httpd"
+    },
+    "db": {
+      "status": "stopped",
+      "start_cmd": "echo Starting db",
+      "stop_cmd": "echo Stopping db"
+    }
+  }
+  

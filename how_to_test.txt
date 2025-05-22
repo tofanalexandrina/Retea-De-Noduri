@@ -1,0 +1,30 @@
+Pasul 1: Creează copii ale folderului pentru fiecare nod
+cp -r reteaua-nodurilor nod1
+cp -r reteaua-nodurilor nod2
+cp -r reteaua-nodurilor nod3
+
+Pasul 2: Setează porturi diferite pentru fiecare nod
+nod1/config.json
+{
+  "port": 9001,
+  "neighbors": [["127.0.0.1", 9002], ["127.0.0.1", 9003]]
+}
+nod2/config.json
+{
+  "port": 9002,
+  "neighbors": [["127.0.0.1", 9001], ["127.0.0.1", 9003]]
+}
+nod3/config.json
+{
+  "port": 9003,
+  "neighbors": [["127.0.0.1", 9001], ["127.0.0.1", 9002]]
+}
+
+Pasul 3: Deschide 3 terminale și rulează fiecare nod
+cd nod1
+python node.py
+
+Testează cu clientul
+cd nod1  # Sau oriunde ai client.py
+python client.py
+

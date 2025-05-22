@@ -1,0 +1,8 @@
+Retea de noduri:
+Fiecare nod este configurat sa se conecteze la o lista de noduri din proximitate;
+La pornirea unui nod, acesta incearca pe rand sa se conecteze la un nod din lista, in cazul conectarii cu succes, mentinand o singura conexiune deschisa;
+Fiecare nod expune o serie de servicii care pot fi pornite sau oprite prin rularea unei comenzi;
+Aplicatia client citeste la pornire lista serviciilor, precum si comanda care trebuie rulata pentru pornirea sau oprirea fiecaruia;
+Din aplicatia client se pot porni sau opri servicii;
+Aplicatia client permite interogarea starii serviciilor de pe fiecare nod, cat si pornirea sau oprirea unui serviciu de pe un anumit nod;
+In momentul in care o aplicatie client de pe un nod executa o comanda pe alt nod, nodul de la distanta confirma rezultatul excutiei comenzii catre nodul care a lansat comanda.
