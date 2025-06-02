@@ -1,0 +1,21 @@
+Fisierul config.json continte lista de noduri apropiate
+
+In node.py se porneste serverul si se incearca conectarea la alte noduri
+
+In client.py se trimit comenzi catre noduri
+
+Pentru testare:
+1. Creare 3 terminale
+    1. python node.py 9001
+    2. python node.py 9002
+    3. python node.py 9003
+
+2. Al 4-lea terminal
+    python client.py
+    IP: 127.0.0.1
+    Port: 9001
+
+3. Rulare comenzi
+    status
+    start backup 
+    stop monitoring

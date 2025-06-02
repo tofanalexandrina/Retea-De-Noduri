@@ -1,72 +1,72 @@
-#codul pentru un nod(server)
 import socket
 import threading
 import json
-import subprocess
+import sys 
 import time
-from common import load_json, save_json
 
-config = load_json('config.json')
-services = load_json('services.json')
 
-HOST = '127.0.0.1'
-PORT = config["port"]
-NEIGHBORS = config["neighbors"]
+PORT=int(sys.argv[1]) #port number cum ar fi 9001
+HOST = "127.0.0.1" #localhost
 
-def handle_command(data):
-    global services
-    try:
-        command = json.loads(data)
-        action = command["action"]
-        if action == "status":
-            return json.dumps(services)
-        svc = command["service"]
-        if svc not in services:
-            return f"Serviciul {svc} nu exista"
+#servicii simulate
+services = {
+    "backup": {"running":False},
+    "monitoring": {"running":False},
+    "logger": {"running":False}
+}
 
-        if action == "start":
-            services[svc]["status"] = "running"
-            subprocess.call(services[svc]["start_cmd"], shell=True)
-            return f"Serviciul {svc} pornit"
-        elif action == "stop":
-            services[svc]["status"] = "stopped"
-            subprocess.call(services[svc]["stop_cmd"], shell=True)
-            return f"Serviciul {svc} oprit"
-        else:
-            return "Actiune necunoscuta"
-    except Exception as e:
-        return f"Eroare: {str(e)}"
+#comenzi suportate
+def execute_command(command):
+    parts=command.strip().split()
+    if len(parts) == 1 and parts[0] == "status":
+        return json.dumps(services)
+    elif len(parts) == 2:
+        action, service = parts
+        if service in services and action in ["start", "stop"]:
+            services[service]["running"] = (action == "start")
+            return f"{action}ed {service}"
+    return "Invalid command"
 
-def handle_client(conn, addr):
+#serverul asculta comenzi de la client/de la alt nod
+def handle_connection(conn, addr):
     with conn:
-        print(f"[CONEXIUNE] {addr}")
-        data = conn.recv(2048).decode()
-        response = handle_command(data)
-        conn.send(response.encode())
+        while True:
+            data = conn.recv(1024).decode()
+            if not data:
+                break
+            result = execute_command(data)
+            conn.send(result.encode())
 
-def server_loop():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((HOST, PORT))
-    s.listen()
-    print(f"[SERVER] Pornit pe {HOST}:{PORT}")
+def start_server():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen()
+    print(f"[NODE {PORT}] Ascultă conexiuni...")
+
     while True:
-        conn, addr = s.accept()
-        threading.Thread(target=handle_client, args=(conn, addr)).start()
+        conn, addr = server.accept()
+        threading.Thread(target=handle_connection, args=(conn, addr)).start()
 
-def connect_to_neighbors():
-    for ip, port in NEIGHBORS:
+
+#clientul incearca sa se conecteze la alte noduri
+def connect_to_nearby_nodes():
+    with open("config.json") as f:
+        nodes = json.load(f)
+
+    for ip, port in nodes:
+        if port == PORT:  # Nu încercăm să ne conectăm la noi înșine
+            continue
         try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.settimeout(3)
-            s.connect((ip, port))
-            print(f"[RETEA] Conectat la nod vecin: {ip}:{port}")
+            s = socket.create_connection((ip, port), timeout=2)
+            print(f"[NODE {PORT}] Conectat la {ip}:{port}")
             s.close()
-            break  # doar prima conexiune reusita
+            return
         except:
             continue
+    print(f"[NODE {PORT}] Nu s-a putut conecta la niciun nod apropiat.")
 
+#pornire nod
 if __name__ == "__main__":
-    threading.Thread(target=server_loop).start()
-    time.sleep(1)
-    connect_to_neighbors()
-
+    threading.Thread(target=start_server).start()
+    time.sleep(1)  #asteapta pornirea serverului
+    connect_to_nearby_nodes()
