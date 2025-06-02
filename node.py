@@ -4,27 +4,8 @@ import json
 import sys 
 import time
 
-
 PORT=int(sys.argv[1]) #port number cum ar fi 9001
 HOST = "127.0.0.1" #localhost
-
-#cerinta 3: servicii care pot fi pornite/oprite prin comenzi
-services = {
-    "backup": {"running":False},
-    "monitoring": {"running":False},
-    "logger": {"running":False}
-}
-#comenzi suportate (start/stop/status)
-def execute_command(command):
-    parts=command.strip().split()
-    if len(parts) == 1 and parts[0] == "status":
-        return json.dumps(services)
-    elif len(parts) == 2:
-        action, service = parts
-        if service in services and action in ["start", "stop"]:
-            services[service]["running"] = (action == "start")
-            return f"{action}ed {service}"
-    return "Invalid command"
 
 def start_server():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,9 +17,9 @@ def start_server():
         conn, addr = server.accept()
         threading.Thread(target=handle_connection, args=(conn, addr)).start()
 
+
 active_connection=None
 connected_port = None 
-
 def connect_to_nearby_nodes():
     global active_connection, connected_port 
     #cerinta 1: citire lsita de noduri din config
@@ -59,6 +40,24 @@ def connect_to_nearby_nodes():
         except:
             continue
     print(f"[NODE {PORT}] Nu s-a putut conecta la niciun nod apropiat.")
+
+#cerinta 3: servicii care pot fi pornite/oprite prin comenzi
+services = {
+    "backup": {"running":False},
+    "monitoring": {"running":False},
+    "logger": {"running":False}
+}
+#comenzi suportate (start/stop/status)
+def execute_command(command):
+    parts=command.strip().split()
+    if len(parts) == 1 and parts[0] == "status":
+        return json.dumps(services)
+    elif len(parts) == 2:
+        action, service = parts
+        if service in services and action in ["start", "stop"]:
+            services[service]["running"] = (action == "start")
+            return f"{action}ed {service}"
+    return "Invalid command"
 
 
 #serverul asculta comenzi de la client/de la alt nod
