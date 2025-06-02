@@ -4,12 +4,13 @@ In node.py se porneste serverul si se incearca conectarea la alte noduri
 
 In client.py se trimit comenzi catre noduri
 
-Pentru testare:
+Pentru cerinta 1, 2 - conectarea dintre noduri: fiecare nod ar trebui sa se conecteze la altul
 1. Creare 3 terminale
     1. python node.py 9001
     2. python node.py 9002
     3. python node.py 9003
 
+Pentru cerinta 3, 5 - service management
 2. Al 4-lea terminal
     python client.py
     IP: 127.0.0.1
@@ -17,5 +18,12 @@ Pentru testare:
 
 3. Rulare comenzi
     status
+    Verificarea tuturor serviciilor(sa fie OFF)
+
     start backup 
-    stop monitoring
+    status
+    Verificarea tuturor serviciilor(backup sa fie ON)
+
+    stop backup
+
+    si tot asa sau cu backup, sau cu logger sau cu monitoring
